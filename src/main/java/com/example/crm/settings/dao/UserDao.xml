@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.crm.settings.dao.UserDao">
+    <resultMap id="userResultMap" type="com.example.crm.settings.domain.User">
+        <id property="id" column="id"/>
+        <result property="loginAct" column="loginAct"/>
+        <result property="name" column="name"/>
+        <result property="loginPwd" column="loginPwd"/>
+        <result property="email" column="email"/>
+        <result property="expireTime" column="expireTime"/>
+        <result property="lockState" column="lockState"/>
+        <result property="deptno" column="deptno"/>
+        <result property="allowIps" column="allowIps"/>
+        <result property="createTime" column="createTime"/>
+        <result property="createBy" column="createBy"/>
+    </resultMap>
+    <sql id="userColumnName">id,loginAct,name,loginPwd,email,expireTime,lockState,deptno,allowIps,createTime,createBy,editTime,editBy</sql>
+
+    <select id="login" resultMap="userResultMap">
+        select <include refid="userColumnName"/> from tbl_user where loginAct=#{loginAct} and loginPwd=#{loginPwd}
+    </select>
+    <select id="getUserList" resultMap="userResultMap">
+        select <include refid="userColumnName"/> from tbl_user
+    </select>
+</mapper>

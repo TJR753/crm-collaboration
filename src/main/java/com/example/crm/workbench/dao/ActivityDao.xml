@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.crm.workbench.dao.ActivityDao">
+    <sql id="columnName">id,owner,name,startDate,endDate,cost,description,createTime,createBy,editTime,editBy</sql>
+    <insert id="saveActivity">
+        insert into tbl_activity(<include refid="columnName"/>) values(#{id},#{owner},#{name},#{startDate},#{endDate},#{cost},#{description},#{createTime},#{createBy},#{editTime},#{editBy})
+    </insert>
+    <select id="getPageList" resultType="activity">
+        select a.id,u.name as owner,a.name,a.startDate,a.endDate from tbl_activity a join tbl_user u on a.owner=u.id
+        <where>
+            <if test="name!=null and name!=''">
+                a.name like '%' #{name} '%'
+            </if>
+            <if test="owner!=null and owner!=''">
+                u.name like '%' #{owner} '%'
+            </if>
+            <if test="startTime!=null and startTime!=''">
+                a.startDate>#{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                a.endDate>#{endTime}
+            </if>
+        </where>
+        order by a.createTime desc
+        limit #{skipCount},#{pageSize}
+
+    </select>
+    <select id="getTotal" resultType="java.lang.Integer">
+        select count(*) from tbl_activity a join tbl_user u on a.owner=u.id
+        <where>
+            <if test="name!=null and name!=''">
+                a.name like '%' #{name} '%'
+            </if>
+            <if test="owner!=null and owner!=''">
+                u.name like '%' #{owner} '%'
+            </if>
+            <if test="startTime!=null and startTime!=''">
+                a.startDate>#{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                a.endDate>#{endTime}
+            </if>
+        </where>
+    </select>
+    <delete id="deleteActivity">
+        delete from tbl_activity where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="getActivityById" resultType="activity">
+        select <include refid="columnName"/> from tbl_activity where id=#{id}
+    </select>
+    <update id="updateActivity">
+        update tbl_activity set id=#{id},owner=#{owner},name=#{name},startDate=#{startDate},endDate=#{endDate},cost=#{cost},description=#{description},editTime=#{editTime},editBy=#{editBy} where id=#{id}
+    </update>
+    <select id="getDetail" resultType="activity">
+        select a.id,u.name as owner,a.name,a.startDate,a.endDate,a.cost,a.description,a.createTime,a.createBy,a.editTime,a.editBy from tbl_activity a join tbl_user u on a.owner=u.id where a.id=#{id}
+    </select>
+    <select id="getActivityListByClueID" resultType="activity">
+        select car.id,u.name as owner,a.name,a.startDate,a.endDate from tbl_activity a join tbl_user u on a.owner=u.id
+        join tbl_clue_activity_relation car on car.activityId=a.id where car.clueId=#{id}
+    </select>
+    <select id="getActivityListAndExcludeClueId" resultType="activity">
+        select a.id,u.name as owner,a.name,a.startDate,a.endDate
+        from tbl_activity a join tbl_user u
+        on a.owner=u.id
+        where a.name like "%" #{searchText} "%"
+        and a.id not in (
+            select activityId from tbl_clue_activity_relation
+            where clueId=#{id}
+        )
+    </select>
+    <select id="getActivityByName" resultType="activity">
+        select a.id,u.name as owner,a.name,a.startDate,a.endDate
+        from tbl_activity a join tbl_user u
+        on a.owner=u.id
+        where a.name like "%" #{searchText} "%"
+    </select>
+</mapper>
